@@ -1,14 +1,27 @@
 let myLibrary = [];
 
-
 document.querySelector(".book-add").addEventListener("click", function(){
-    document.querySelector("#container").style.display = "inline-block"; 
+    
+
+    if (myLibrary.length < 12) {
+        document.querySelector("#container").style.display = "inline-block"; 
+        
+    }
+    document.getElementById("author").value = ""
+    document.getElementById("title").value = ""
+    document.getElementById("pages").value = ""
 })
 
 document.querySelector("#submit").addEventListener("click", function(){
-    document.querySelector("#container").style.display = "none";
-    myLibrary = addBookToLibrary(myLibrary);
-    console.log(myLibrary)
+    let validation = validateInputs(); /* flag value that checks whether we get correct inputs */
+    
+    if (validation == true){
+        document.querySelector("#container").style.display = "none";
+        
+        myLibrary = addBookToLibrary(myLibrary);
+
+    }
+    
 })
 
 function Book(author,title,pages,readOption){
@@ -23,11 +36,13 @@ function Book(author,title,pages,readOption){
 }
 
 function addBookToLibrary(myLibrary){
+    
 
     //gets values from inputs
     let author = document.getElementById("author").value;
     let title = document.getElementById("title").value;
     let pages = document.getElementById("pages").value;
+    console.log(pages)
     let readOption = "";
     if (document.getElementById("read").checked == true){
         readOption = "already read"
@@ -39,13 +54,34 @@ function addBookToLibrary(myLibrary){
 
     let inputs = new Book(author,title,pages,readOption)
     myLibrary.push(inputs)
+
+    containerCreate(inputs,myLibrary);
+    
+    return myLibrary;
+}
+
+function bookRemove(deleteTitle,Library){
+    for (let i =0; i < Library.length; i++){
+        if (deleteTitle == Library[i].title) {
+            myLibrary.splice(i,1)
+            break;
+        }
+    }
+    return Library;
+}
+
+function containerCreate(inputs,Library){
+    
+
     let bookContainer = document.createElement("div");
-    bookContainer.className = "book-container"
     let bookInput = document.createElement("p");
     let bookTitle = document.createElement("p");
+    let bookButton = document.createElement("button");
+
+    bookContainer.className = "book-container"
     bookTitle.innerHTML = title;
     bookTitle.style.display = "none";
-    let bookButton = document.createElement("button");
+    
     
     bookButton.className = "book-button"
     bookButton.innerHTML = "X"
@@ -60,17 +96,30 @@ function addBookToLibrary(myLibrary){
     bookButton.addEventListener("click",function(){
         bookContainer.remove();
         let deleteTitle = bookTitle.innerHTML;
-        myLibrary = bookRemove(deleteTitle,myLibrary);
+        Library = bookRemove(deleteTitle,Library);
     })
-    return myLibrary;
+
+
+    return Library
 }
 
-function bookRemove(deleteTitle,myLibrary){
-    for (let i =0; i < myLibrary.length; i++){
-        if (deleteTitle == myLibrary[i].title) {
-            myLibrary.splice(i,1)
-            break;
-        }
+function validateInputs(){
+    let author = document.getElementById("author").value;
+    let title = document.getElementById("title").value;
+    let pages = document.getElementById("pages").value;
+    let validationPrint = document.getElementById("validation-print");
+
+    if ((author.length < 2) || (title.length < 2) ){
+        validationPrint.textContent = "Author and title must contain atleast 2 characters";
+        validationPrint.style.display = "inline";
+        return false;
     }
-    return myLibrary;
+
+    if ((pages == "") || (pages <= 0)){
+        validationPrint.textContent = "Enter valid page number";
+        validationPrint.style.display = "inline";
+        return false;
+    }
+    validationPrint.style.display = "none"
+    return true;
 }
